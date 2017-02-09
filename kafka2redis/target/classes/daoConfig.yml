@@ -1,0 +1,21 @@
+daoConfig:
+  routes:
+    hmall:cache:{thirdParty}thirdParty:alipay:
+      catelog: cache
+      clazz: thirdParty:alipay
+      hashTag: thirdParty
+      type: equal|equal|equal|range
+      value: alipayOpenId|alipayOpenId|accessToken|createTime
+    hmall:online:{product}Attr:
+      catelog: online
+      clazz: Attr
+      hashTag: product
+      type: N
+      value: attrId
+    hmall:cache:{base}Base:staff:
+      catelog: cache
+      clazz: Base:staff
+      hashTag: base
+      type: equal
+      value: employeeId
+

@@ -1,0 +1,36 @@
+server.port: 2229
+
+# REDIS (RedisProperties)
+# Redis数据库索引（默认为0）
+spring.redis.database: 1
+# Redis服务器地址
+spring.redis.host: 172.20.1.20
+# Redis服务器连接端口
+spring.redis.port: 6379
+# Redis服务器连接密码（默认为空）
+spring.redis.password:
+# 连接池最大连接数（使用负值表示没有限制）
+spring.redis.pool.max-active: 8
+# 连接池最大阻塞等待时间（使用负值表示没有限制）
+spring.redis.pool.max-wait: -1
+# 连接池中的最大空闲连接
+spring.redis.pool.max-idle: 8
+# 连接池中的最小空闲连接
+spring.redis.pool.min-idle: 0
+# 连接超时时间（毫秒）
+spring.redis.timeout: 0
+
+rpush.channel: test
+
+
+bootstrap.servers: 172.20.1.23:9092
+request.timeout.ms: 1000
+max.block.ms: 3000
+acks: all
+retries: 0
+batch.size: 16384
+linger.ms: 1
+buffer.memory: 33554432
+key.serializer: org.apache.kafka.common.serialization.StringSerializer
+value.serializer: org.apache.kafka.common.serialization.StringSerializer
+kafka.topic: test1

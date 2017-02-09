@@ -1,0 +1,18 @@
+server.port: 2232
+
+spring.redis.host: 172.20.1.20
+spring.redis.port: 6379
+spring.redis.channel: test
+spring.redis.database: 1
+
+bootstrap.servers: localhost:9092
+request.timeout.ms: 1000
+max.block.ms: 3000
+acks: all
+retries: 0
+batch.size: 16384
+linger.ms: 1
+buffer.memory: 33554432
+key.serializer: org.apache.kafka.common.serialization.StringSerializer
+value.serializer: org.apache.kafka.common.serialization.StringSerializer
+kafka.topic: test1
