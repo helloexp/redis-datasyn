@@ -1,4 +1,3 @@
-
 server.port: 2235
 
 # REDIS (RedisProperties)
@@ -21,7 +20,7 @@ spring.redis.pool.min-idle: 0
 # 连接超时时间（毫秒）
 spring.redis.timeout: 0
 
-bootstrap.servers: localhost:9092
+bootstrap.servers: 172.20.1.23:9093
 
 request.timeout.ms: 1000
 

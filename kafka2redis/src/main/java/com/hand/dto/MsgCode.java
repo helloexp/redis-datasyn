@@ -34,6 +34,12 @@ public interface MsgCode {
     public static final String UR_INFO_002 = "UR_INFO_002";
     public static final String UR_INFO_002_VALUE = "用户信息必填字段为空";
 
+    public static final String UR_INFO_003 = "UR_INFO_003";
+    public static final String UR_INFO_003_VALUE = "输入的性别不合法";
+
+    public static final String UR_INFO_004 = "UR_INFO_004";
+    public static final String UR_INFO_004_VALUE = "用户性别和生日只能修改一次";
+
     public static final String UR_SCY_001 = "UR_SCY_001";
     public static final String UR_SCY_001_VALUE = "id对应的用户为空";
 
@@ -141,6 +147,39 @@ public interface MsgCode {
     public static final String COMMENT_PURCHASEADVICE_01 = "COMMENT_PURCHASEADVICE_01";
     public static final String COMMENT_PURCHASEADVICE_01_VALUE = "尚无购买咨询";
 
+    public static final String COMMENT_01 = "COMMENT_01";
+    public static final String COMMENT_01_VALUE = "评价中存在敏感词";
+
+    public static final String COMMENT_02 = "COMMENT_02";
+    public static final String COMMENT_02_VALUE = "身高必须是两位或三位正整数";
+
+    public static final String COMMENT_03 = "COMMENT_03";
+    public static final String COMMENT_03_VALUE = "体重必须是两位或三位正整数";
+    
+    /**
+	 * STOCK
+	 */
+	public static final String PLEASE_SELECT_EXPRESS_OR_PICKUP = "PLEASE_SELECT_EXPRESS_OR_PICKUP";
+	public static final String PLEASE_SELECT_EXPRESS_OR_PICKUP_VALUE = "请选择快递或门店自提";
+	
+	public static final String PLEASE_SELECT_PRODUCT = "PLEASE_SELECT_PRODUCT";
+	public static final String PLEASE_SELECT_PRODUCT_VALUE = "请选择商品";
+	
+	public static final String EXPRESSREPOSITORY_NOT_EXIST = "EXPRESSREPOSITORY_NOT_EXIST";
+	public static final String EXPRESSREPOSITORY_NOT_EXIST_VALUE = "快递仓不存在";
+	
+	public static final String NOT_SUPPORT_PICKUP = "NOT_SUPPORT_PICKUP";
+	public static final String NOT_SUPPORT_PICKUP_VALUE = "不支持自提";
+	
+	public static final String NO_SKU = "NO_SKU";
+	public static final String NO_SKU_VALUE = "没有该SKU";
+	
+	public static final String NO_SPU = "NO_SPU";
+	public static final String NO_SPU_VALUE = "没有该SPU";
+	
+	public static final String QUERY_UNKNOWN_ERROR = "QUERY_UNKNOWN_ERROR";
+	public static final String QUERY_UNKNOWN_ERROR_VALUE = "未知错误";
+
     /**
      * OD
      */
@@ -152,6 +191,36 @@ public interface MsgCode {
 
     public static final String OD_INFO_003 = "OD_INFO_003";
     public static final String OD_INFO_003_VALUE = "orderId对应的我的订单信息为空";
+    
+    public static final String OD_INFO_004 = "OD_INFO_004";
+    public static final String OD_INFO_004_VALUE = "修改订单商品状态出错";
+    
+    public static final String OD_INFO_005 = "OD_INFO_005";
+    public static final String OD_INFO_005_VALUE = "获取商品库存出错";
+    
+    public static final String OD_INFO_006 = "OD_INFO_006";
+    public static final String OD_INFO_006_VALUE = "获取订单收货地址出错";
+    
+    public static final String OD_INFO_007 = "OD_INFO_007";
+    public static final String OD_INFO_007_VALUE = "退款表存在改退款信息，不能重复退款";
+    
+    public static final String OD_INFO_008 = "OD_INFO_008";
+    public static final String OD_INFO_008_VALUE = "申请退款数据插入退款表出错";
+    
+    public static final String OD_INFO_009 = "OD_INFO_009";
+    public static final String OD_INFO_009_VALUE = "申请售后数据插入退款表出错";
+    
+    public static final String OD_INFO_010 = "OD_INFO_010";
+    public static final String OD_INFO_010_VALUE = "申请售后数据插入换货表出错";
+    
+    public static final String OD_INFO_011 = "OD_INFO_011";
+    public static final String OD_INFO_011_VALUE = "修改退货列表或者换货列表状态出错";
+    
+    public static final String OD_INFO_012 = "OD_INFO_012";
+    public static final String OD_INFO_012_VALUE = "获取订单支付时间出错";
+    
+    public static final String OD_INFO_013 = "OD_INFO_013";
+    public static final String OD_INFO_013_VALUE = "插入换发订单出错";
 
     public static final String OD_REFUND_001 = "OD_REFUND_001";
     public static final String OD_REFUND_001_VALUE = "退款金额小于0";
@@ -170,6 +239,21 @@ public interface MsgCode {
 
     public static final String OD_REFUND_006 = "OD_REFUND_006";
     public static final String OD_REFUND_006_VALUE = "replaceId对应的换货表信息为空";
+    
+    public static final String OD_REFUND_007 = "OD_REFUND_007";
+    public static final String OD_REFUND_007_VALUE = "订单商品行信息为空";
+    
+    public static final String OD_REFUND_008 = "OD_REFUND_008";
+    public static final String OD_REFUND_008_VALUE = "退货件数不符合要求";
+    
+    public static final String OD_REFUND_009 = "OD_REFUND_009";
+    public static final String OD_REFUND_009_VALUE = "退单列表取消操作出错";
+    
+    public static final String OD_REPLACE_01 = "OD_REPLACE_01";
+    public static final String OD_REPLACE_01_VALUE = "查询换货单列表为空";
+    
+    public static final String OD_REPLACE_02 = "OD_REPLACE_02";
+    public static final String OD_REPLACE_02_VALUE = "换货单列表取消操作出错";
 
     public static final String OD_QUERY_01 = "OD_QUERY_01";
     public static final String OD_QUERY_01_VALUE = "查询订单详情内容为空";
@@ -296,46 +380,48 @@ public interface MsgCode {
     /**
      * THIRD
      */
-    public static final String THRID_CODE_F_01 = "THIRD_F_01";
-	public static final String THRID_MSG_F_01 = "网络连接异常";
+    // THIRD_F_01
+    // THRID_MSG_F_01
+    public static final String THIRD_01 = "THIRD_01";
+	public static final String THIRD_01_VALUE = "网络连接异常";
 
-	public static final String THRID_CODE_F_02 = "THIRD_F_02";
-	public static final String THRID_MSG_F_02 = "授权码code无效";
+	public static final String THIRD_02 = "THIRD_02";
+	public static final String THIRD_02_VALUE = "授权码code无效";
 
-	public static final String THRID_CODE_F_03 = "THIRD_F_03";
-	public static final String THRID_MSG_F_03 = "您还没有绑定手机号码";
+	public static final String THIRD_03 = "THIRD_03";
+	public static final String THIRD_03_VALUE = "您还没有绑定手机号码";
 
-	public static final String THRID_CODE_F_04 = "THIRD_F_04";
-	public static final String THRID_MSG_F_04 = "数据异常，请联系管理员";
+	public static final String THIRD_04 = "THIRD_04";
+	public static final String THIRD_04_VALUE = "数据异常，请联系管理员";
 
-	public static final String THRID_CODE_F_05 = "THIRD_F_05";
-	public static final String THRID_MSG_F_05 = "请求参数错误";
+	public static final String THIRD_05 = "THIRD_05";
+	public static final String THIRD_05_VALUE = "请求参数错误";
 
-	public static final String THRID_CODE_F_06 = "THIRD_F_06";
-	public static final String THRID_MSG_F_06 = "手机号码格式错误";
+	public static final String THIRD_06 = "THIRD_06";
+	public static final String THIRD_06_VALUE = "手机号码格式错误";
 
-	public static final String THRID_CODE_F_07 = "THIRD_F_07";
-	public static final String THRID_MSG_F_07 = "滑块验证失败";
+	public static final String THIRD_07 = "THIRD_07";
+	public static final String THIRD_07_VALUE = "滑块验证失败";
 
-	public static final String THRID_CODE_F_08 = "THIRD_F_08";
-	public static final String THRID_MSG_F_08 = "验证码输入错误次数大于3次";
+	public static final String THIRD_08 = "THIRD_08";
+	public static final String THIRD_08_VALUE = "验证码输入错误次数大于3次";
 
-	public static final String THRID_CODE_F_09 = "THIRD_F_09";
-	public static final String THRID_MSG_F_09 = "验证码错误";
+	public static final String THIRD_09 = "THIRD_09";
+	public static final String THIRD_09_VALUE = "验证码错误";
 
-	public static final String THRID_CODE_F_10 = "THIRD_F_10";
-	public static final String THRID_MSG_F_10 = "两次输入密码不一致";
+	public static final String THIRD_10 = "THIRD_10";
+	public static final String THIRD_10_VALUE = "两次输入密码不一致";
 
-	public static final String THRID_CODE_F_11 = "THIRD_F_11";
-	public static final String THRID_MSG_F_11 = "openId无效";
+	public static final String THIRD_11 = "THIRD_11";
+	public static final String THIRD_11_VALUE = "openId无效";
 
-	public static final String THRID_CODE_F_12 = "THIRD_F_12";
-	public static final String THRID_MSG_F_12 = "授权失效，请重新授权";
+	public static final String THIRD_12 = "THIRD_12";
+	public static final String THIRD_12_VALUE = "授权失效，请重新授权";
 
 	//
-	public static final String THRID_CODE_F_13 = "THIRD_F_13";
-	public static final String THRID_MSG_F_13 = "手机号已绑定账户";
-
-	public static final String THRID_CODE_F_14 = "THIRD_F_14";
-	public static final String THRID_MSG_F_14 = "type类型错误";
+	public static final String THIRD_13 = "THIRD_13";
+	public static final String THIRD_13_VALUE = "手机号已绑定账户";
+	
+	public static final String THIRD_14 = "THIRD_14";
+	public static final String THIRD_14_VALUE = "type类型错误";
 }

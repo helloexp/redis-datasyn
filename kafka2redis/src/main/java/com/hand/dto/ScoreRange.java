@@ -4,28 +4,26 @@ package com.hand.dto;
  * Created by Hand on 2017/1/5.
  */
 public class ScoreRange {
-    private double min;
-    private double max;
-    public ScoreRange(){
-    }
-    public ScoreRange(double min,double max){
-        this.min = min;
-        this.max = max;
-    }
+	private String min;
+	private String max;
 
-    public double getMin() {
-        return min;
-    }
+	public ScoreRange() {
+	}
 
-    public double getMax() {
-        return max;
-    }
+	public String getMin() {
+		return min;
+	}
 
-    public void setMin(double min) {
-        this.min = min;
-    }
+	public void setMin(String min) {
+		this.min = min;
+	}
 
-    public void setMax(double max) {
-        this.max = max;
-    }
+	public String getMax() {
+		return max;
+	}
+
+	public void setMax(String max) {
+		this.max = max;
+	}
+
 }

@@ -16,7 +16,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisZSetCommands;
 import org.springframework.data.redis.core.*;
-import redis.clients.jedis.Tuple;
 
 import javax.annotation.Resource;
 import java.util.*;

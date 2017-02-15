@@ -12,10 +12,405 @@ daoConfig:
       hashTag: product
       type: N
       value: attrId
+    hmall:online:{product}Attr:product:
+      catelog: online
+      clazz: Attr:product
+      hashTag: product
+      type: N|equal
+      value: uid|productCode
+    hmall:staged:{product}Attr:product:
+      catelog: staged
+      clazz: Attr:product
+      hashTag: product
+      type: N|equal
+      value: uid|productCode
+    hmall:staged:{product}Attr:
+      catelog: staged
+      clazz: Attr
+      hashTag: product
+      type: N
+      value: attrId
+    hmall:cache:{Base}Base:baseStore:
+      catelog: cache
+      clazz: Base:baseStore
+      hashTag: Base
+      type: N
+      value: storeId
+    hmall:cache:{cart}Cart:
+      catelog: cache
+      clazz: Cart
+      hashTag: cart
+      type: N|equal|equal|equal|equal
+      value: cartId|userId|productId|distribution|distributionId
+    hmall:online:{product}Category:
+      catelog: online
+      clazz: Category
+      hashTag: product
+      type: N|equal
+      value: uid|parentCode
+    hmall:online:{product}Category:product:
+      catelog: online
+      clazz: Category:product
+      hashTag: product
+      type: N|equal|equal
+      value: uid|parentCode|categoryCode
+    hmall:staged:{product}Category:product:
+      catelog: staged
+      clazz: Category:product
+      hashTag: product
+      type: N|equal|equal
+      value: uid|parentCode|categoryCode
+    hmall:staged:{product}Category:
+      catelog: staged
+      clazz: Category
+      hashTag: product
+      type: N|equal
+      value: uid|parentCode
+    hmall:cache:{Base}Base:cMSSite:
+      catelog: cache
+      clazz: Base:cMSSite
+      hashTag: Base
+      type: N
+      value: cmmsId
+    hmall:cache:{promotion}coupon:
+      catelog: cache
+      clazz: coupon
+      hashTag: promotion
+      type: equal|match|match|equal|equal|equal
+      value: couponCode|name|range|type|startDate|endDate
+    hmall:cache:{promotion}coupon:customerCoupon:
+      catelog: cache
+      clazz: coupon:customerCoupon
+      hashTag: promotion
+      type: equal|equal|equal|equal
+      value: couponId|userId|couponCode|status
+    hmall:cache:{base}Base:deliveryTemplate:
+      catelog: cache
+      clazz: Base:deliveryTemplate
+      hashTag: base
+      type: N
+      value: deliveryTemplateId
+    hmall:cache:{user}User:emailpath:
+      catelog: cache
+      clazz: User:emailpath
+      hashTag: user
+      type: equal|equal|equal
+      value: uid|email|status
+    hmall:cache:{sms}Sms:error:
+      catelog: cache
+      clazz: Sms:error
+      hashTag: sms
+      type: equal|equal|equal
+      value: uid|mobileNumber|status
+    hmall:cache:{Base}Base:inStockStatus:
+      catelog: cache
+      clazz: Base:inStockStatus
+      hashTag: Base
+      type: N
+      value: inStockCode
+    hmall:cache:{user}User:login:
+      catelog: cache
+      clazz: User:login
+      hashTag: user
+      type: N
+      value: customerId
+    hmall:cache:{base}Base:logisticsCompaniesDao:
+      catelog: cache
+      clazz: Base:logisticsCompaniesDao
+      hashTag: base
+      type: N
+      value: code
+    hmall:cache:{customer}Customer:mobile:
+      catelog: cache
+      clazz: Customer:mobile
+      hashTag: customer
+      type: equal
+      value: mobileNumber
+    hmall:cache:{order}Express:
+      catelog: cache
+      clazz: Express
+      hashTag: order
+      type: equal|equal
+      value: expressId|orderId
+    hmall:cache:{order}Order:node:
+      catelog: cache
+      clazz: Order:node
+      hashTag: order
+      type: equal|equal|equal
+      value: uid|orderId|status
+    hmall:cache:{order}Pickup:code:
+      catelog: cache
+      clazz: Pickup:code
+      hashTag: order
+      type: equal|equal|equal|equal|equal|equal
+      value: uid|pickupId|status|orderId|storeId|active
+    hmall:cache:{order}Pickup:
+      catelog: cache
+      clazz: Pickup
+      hashTag: order
+      type: equal|equal|equal
+      value: pickupId|orderId|userId
+    hmall:cache:{order}Order:price:
+      catelog: cache
+      clazz: Order:price
+      hashTag: order
+      type: N
+      value: orderId
+    hmall:cache:{order}Order:details:
+      catelog: cache
+      clazz: Order:details
+      hashTag: order
+      type: equal|equal|equal|equal|equal
+      value: uid|orderId|name|sign|status
+    hmall:cache:{order}Order:status:
+      catelog: cache
+      clazz: Order:status
+      hashTag: order
+      type: equal|equal|equal
+      value: orderId|status|distribution
+    hmall:cache:{order}Order:temp:
+      catelog: cache
+      clazz: Order:temp
+      hashTag: order
+      type: equal
+      value: tempId
+    hmall:cache:{base}Base:paymentMode:
+      catelog: cache
+      clazz: Base:paymentMode
+      hashTag: base
+      type: N
+      value: paymentModeId
+    hmall:cache:{base}Base:pointOfService:
+      catelog: cache
+      clazz: Base:pointOfService
+      hashTag: base
+      type: N|equal|equal|equal
+      value: code|state|city|district
+    hmall:online:{product}Product:
+      catelog: online
+      clazz: Product
+      hashTag: product
+      type: N|equal|equal|equal|range
+      value: productId|productCode|size|style|price
+    hmall:staged:{product}Product:
+      catelog: staged
+      clazz: Product
+      hashTag: product
+      type: N|equal|equal|equal|range
+      value: productId|productCode|size|style|price
+    hmall:online:{product}Product:recommend:
+      catelog: online
+      clazz: Product:recommend
+      hashTag: product
+      type: N|range
+      value: uid|creationTime
+    hmall:staged:{product}Product:recommend:
+      catelog: staged
+      clazz: Product:recommend
+      hashTag: product
+      type: N|range
+      value: uid|creationTime
+    hmall:online:{product}Product:resource:
+      catelog: online
+      clazz: Product:resource
+      hashTag: product
+      type: N
+      value: productCode
+    hmall:staged:{product}Product:resource:
+      catelog: staged
+      clazz: Product:resource
+      hashTag: product
+      type: N
+      value: productCode
+    hmall:online:{product}Product:summary:
+      catelog: online
+      clazz: Product:summary
+      hashTag: product
+      type: N|equal|match|match
+      value: productCode|categoryCode|name|subtitle
+    hmall:staged:{product}Product:summary:
+      catelog: staged
+      clazz: Product:summary
+      hashTag: product
+      type: N|equal|match|match
+      value: productCode|categoryCode|name|subtitle
+    hmall:cache:{prompt}Prompt:zh:
+      catelog: cache
+      clazz: Prompt:zh
+      hashTag: prompt
+      type: N
+      value: msgCode
+    hmall:cache:{user}User:pwderror:
+      catelog: cache
+      clazz: User:pwderror
+      hashTag: user
+      type: equal|equal|equal
+      value: uid|customerId|status
+    hmall:cache:{thirdParty}thirdParty:qq:
+      catelog: cache
+      clazz: thirdParty:qq
+      hashTag: thirdParty
+      type: equal|equal|equal|range
+      value: qqOpenId|qqOpenId|accessToken|createTime
+    hmall:cache:{user}User:quicklogin:
+      catelog: cache
+      clazz: User:quicklogin
+      hashTag: user
+      type: equal|equal|equal
+      value: uid|customerId|status
+    hmall:cache:{refund}Refund:
+      catelog: cache
+      clazz: Refund
+      hashTag: refund
+      type: equal|equal|equal|equal|equal
+      value: refundId|orderId|productId|userId|refundType
+    hmall:cache:{rules}Rules:action:
+      catelog: cache
+      clazz: Rules:action
+      hashTag: rules
+      type: equal|equal
+      value: actionId|modelId
+    hmall:cache:{rules}Rules:condition:
+      catelog: cache
+      clazz: Rules:condition
+      hashTag: rules
+      type: equal|equal
+      value: conditionId|modelId
+    hmall:cache:{rules}Rules:models:
+      catelog: cache
+      clazz: Rules:models
+      hashTag: rules
+      type: equal|match
+      value: modelId|simpleName
+    hmall:cache:{rules}Rules:temp:
+      catelog: cache
+      clazz: Rules:temp
+      hashTag: rules
+      type: equal
+      value: tmplId
+    hmall:cache:{replace}Replace:shippingReplacement:
+      catelog: cache
+      clazz: Replace:shippingReplacement
+      hashTag: replace
+      type: equal|equal|equal|equal
+      value: replaceId|orderId|productId|userId
+    hmall:cache:{siteMessage}siteMessage:
+      catelog: cache
+      clazz: siteMessage
+      hashTag: siteMessage
+      type: N|equal|equal
+      value: uid|userId|msgCode
+    hmall:cache:{siteMessage}siteMessage:read:
+      catelog: cache
+      clazz: siteMessage:read
+      hashTag: siteMessage
+      type: N|equal|equal|equal|equal
+      value: uid|userId|siteMsgId|state|msgCode
+    hmall:cache:{siteMessage}siteMessage:type:
+      catelog: cache
+      clazz: siteMessage:type
+      hashTag: siteMessage
+      type: N|equal
+      value: msgCode|msgCode
+    hmall:cache:{sms}Sms:
+      catelog: cache
+      clazz: Sms
+      hashTag: sms
+      type: equal|match
+      value: uid|mobile
     hmall:cache:{base}Base:staff:
       catelog: cache
       clazz: Base:staff
       hashTag: base
-      type: equal
+      type: N
       value: employeeId
-
+    hmall:cache:{user}User:staffmobile:
+      catelog: cache
+      clazz: User:staffmobile
+      hashTag: user
+      type: equal
+      value: mobileNumber
+    hmall:cache:{stock}Center:
+      catelog: cache
+      clazz: Center
+      hashTag: stock
+      type: N|equal|equal
+      value: uid|productCode|productId
+    hmall:cache:{stock}stock:
+      catelog: cache
+      clazz: stock
+      hashTag: stock
+      type: N|equal|equal|equal|equal|equal|equal|equal|equal|equal|equal|equal
+      value: stockId|productCode|productId|storeId|repositoryId|isSure|isExpress|isPickup|isVirtualRepository|isTotalRepository|isStore|isRepository
+    hmall:cache:{stock}Store:
+      catelog: cache
+      clazz: Store
+      hashTag: stock
+      type: N|equal|equal|equal
+      value: uid|productCode|productId|store
+    hmall:cache:{base}Base:area:
+      catelog: cache
+      clazz: Base:area
+      hashTag: base
+      type: N|equal|equal
+      value: id|type|parentId
+    hmall:cache:{thirdParty}thirdParty:taobao:
+      catelog: cache
+      clazz: thirdParty:taobao
+      hashTag: thirdParty
+      type: equal|equal|equal|range
+      value: taobaoOpenId|taobaoOpenId|accessToken|createTime
+    hmall:cache:{test}Test:
+      catelog: cache
+      clazz: Test
+      hashTag: test
+      type: equal|equal|range|equal
+      value: testId|userId|creationTime|status
+    hmall:cache:{thirdParty}thirdParty:
+      catelog: cache
+      clazz: thirdParty
+      hashTag: thirdParty
+      type: equal|equal|equal|equal|equal|equal
+      value: uid|userId|openId|uid|type|state
+    hmall:cache:{user}User:address:
+      catelog: cache
+      clazz: User:address
+      hashTag: user
+      type: equal|equal|match|match|match|match|match|match|equal
+      value: addressId|userId|consignee|region|address|zipcode|mobilenumber|fixednumber|isDefault
+    hmall:cache:{user}User:
+      catelog: cache
+      clazz: User
+      hashTag: user
+      type: equal|equal|match|match|match
+      value: userId|groups|name|email|mobileNumber
+    hmall:cache:{user}User:info:
+      catelog: cache
+      clazz: User:info
+      hashTag: user
+      type: equal|match|equal|match|match
+      value: userId|name|sex|birthday|city
+    hmall:cache:{thirdParty}thirdParty:weibo:
+      catelog: cache
+      clazz: thirdParty:weibo
+      hashTag: thirdParty
+      type: equal|equal|equal|range
+      value: weiboOpenId|weiboOpenId|accessToken|createTime
+    hmall:cache:{thirdParty}thirdParty:weixin:
+      catelog: cache
+      clazz: thirdParty:weixin
+      hashTag: thirdParty
+      type: equal|equal|equal|range
+      value: weixinOpenId|weixinOpenId|accessToken|createTime
+    hmall:cache:{base}Base:zoneDeliveryMode:
+      catelog: cache
+      clazz: Base:zoneDeliveryMode
+      hashTag: base
+      type: N
+      value: code
+    hmall:cache:{base}Base:zoneDeliveryModeValue:
+      catelog: cache
+      clazz: Base:zoneDeliveryModeValue
+      hashTag: base
+      type: N
+      value: zoneDeliveryModeValueId

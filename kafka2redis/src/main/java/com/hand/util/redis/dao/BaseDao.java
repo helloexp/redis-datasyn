@@ -2,13 +2,12 @@ package com.hand.util.redis.dao;
 
 import com.hand.dto.PagedValues;
 import com.hand.dto.ScoreRange;
+import com.hand.util.Ascii;
 import com.hand.util.MapUtil;
 import com.hand.util.json.JsonMapper;
 import com.hand.util.redis.Field.FieldDescriptor;
 import com.hand.util.redis.Field.FieldType;
-import org.apache.commons.collections.ListUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.collections.SetUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,7 +15,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisZSetCommands;
 import org.springframework.data.redis.core.*;
-import redis.clients.jedis.Tuple;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -25,20 +23,35 @@ import java.util.*;
  * Created by DongFan on 2016/11/15.
  */
 public abstract class BaseDao {
+
     private static final int ZERO = 0;
+
     @Resource(name = "stringRedisTemplate")
     protected StringRedisTemplate redisTemplate;
+
     protected JsonMapper jsonMapper = new JsonMapper();
+
     protected String hashTag = "";
     protected String clazz = "";
     protected String catelog = "cache";
+
+    final String channel = "test";
+
     protected String recycleTag = "recycle";
     protected FieldDescriptor idDescriptor;
     Map<String, FieldDescriptor> fieldDescriptorMap = new HashMap<>();
     private static Logger logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
-    //    private static Logger logger2 = LogManager.getLogger("test.time");
+//    private static Logger logger2 = LogManager.getLogger("test.time");
+
     //用于Equal字段分页的字段
     private Map<String, String> pagingFieldMap = new HashMap<>();
+    private static final String EMPTY = "empty";
+
+    protected static  final String LOCKED = "locked";
+
+    public String getClazz() {
+        return clazz;
+    }
 
     //計算Equal字段的score值
     private double countEqualScore(String name, Map<String, ?> map) {
@@ -89,9 +102,12 @@ public abstract class BaseDao {
         String id = getIdValue(map);
         String pattern = createPattern();
         String json = jsonMapper.convertToJson(mapNew);
+
         //将新增的数据插入到redis Hash中
         redisTemplate.opsForHash().put(pattern, id, json);
         logger.debug("insert into " + pattern + " 1 record");
+//        redisTemplate.opsForList().rightPush(channel, "add|" + pattern + "|" + json);
+
         //遍历对象需要进行搜索的字段
         fieldDescriptorMap.forEach((name, field) -> {
             String key;
@@ -110,7 +126,8 @@ public abstract class BaseDao {
                         break;
                     case FieldType.TYPE_MATCH:
                         key = createPattern(name);
-                        redisTemplate.boundZSetOps(key).add(value + ":" + id, 0);
+                        String ascValue = Ascii.stringToAscStr(value);
+                        redisTemplate.boundZSetOps(key).add(ascValue + ":" + id, 0);
                         break;
                     //当字段为范围搜索时，需要将id插入到字段对应的ZSET中，以id为value,以字段值为score
                     case FieldType.TYPE_RANGE:
@@ -135,6 +152,7 @@ public abstract class BaseDao {
         String json = jsonMapper.convertToJson(recycle);
         redisTemplate.boundHashOps(createRecycle()).put(rid, json);
     }
+
 
     public Map<String, ?> selectRecycle(String rid) {
         String json = (String) redisTemplate.boundHashOps(createRecycle()).get(rid);
@@ -179,6 +197,7 @@ public abstract class BaseDao {
             //根据id删除对应redis Hash中的对象
             affectRows = redisTemplate.boundHashOps(idHashKey).delete(id);
             logger.debug("delete from " + idHashKey + " by id:" + id + ",delete 1 record");
+
             //遍历对象所需分类查询的字段，将其对应的id删除
             fieldDescriptorMap.forEach((name, field) -> {
                 String key;
@@ -195,7 +214,8 @@ public abstract class BaseDao {
                             break;
                         case FieldType.TYPE_MATCH:
                             key = createPattern(name);
-                            redisTemplate.boundZSetOps(key).remove(value + ":" + id);
+                            String ascValue = Ascii.stringToAscStr(value);
+                            redisTemplate.boundZSetOps(key).remove(ascValue + ":" + id);
                             break;
                         case FieldType.TYPE_RANGE:
                             key = createPattern(name);
@@ -209,6 +229,7 @@ public abstract class BaseDao {
             String recycleKey = createRecycle();
             String json = jsonMapper.convertToJson(old);
             redisTemplate.boundHashOps(recycleKey).put(id, json);
+//            redisTemplate.opsForList().rightPush(channel, "del|" + idHashKey + "|" + id + "|" + json);
         } else {
             logger.debug("delete from " + idHashKey + " by id:" + id + " with none record,so not do delete");
         }
@@ -227,7 +248,7 @@ public abstract class BaseDao {
         //返回此操作影响的行数，>0执行成功
 //        long start = System.currentTimeMillis();
         Map<String, Object> mapNew = (Map<String, Object>) map;
-        mapNew.put("version", objToInt(map.get("version")) + 1);
+//        mapNew.put("version", objToInt(map.get("version")) + 1);
         String id = getIdValue(map);
         Map<String, ?> old = select(id);
         String pattern = createPattern();
@@ -235,6 +256,7 @@ public abstract class BaseDao {
         //根据id更新redis Hash对象
         redisTemplate.boundHashOps(pattern).put(id, json);
         logger.debug("update from " + pattern + " by id:" + id + " ,update 1 record");
+//        redisTemplate.opsForList().rightPush(channel, "up|" + pattern + "|" + json);
         //当EQUAL字段的SCORE更改时
         if (!pagingFieldMap.isEmpty()) {
             Set<Map.Entry<String, String>> entrySet = pagingFieldMap.entrySet();
@@ -289,10 +311,12 @@ public abstract class BaseDao {
                     } else if (FieldType.TYPE_MATCH.equals(fd.getType())) {
                         String key = createPattern(k);
                         if (ov != null) {
-                            redisTemplate.boundZSetOps(key).remove(ov + ":" + id);
+                            String asc_ov = Ascii.stringToAscStr(String.valueOf(ov));
+                            redisTemplate.boundZSetOps(key).remove(asc_ov + ":" + id);
                         }
                         if (nv != null) {
-                            redisTemplate.boundZSetOps(key).add(nv + ":" + id, 0);
+                            String asc_nv = Ascii.stringToAscStr(String.valueOf(nv));
+                            redisTemplate.boundZSetOps(key).add(asc_nv + ":" + id, 0);
                         }
                     } else if (FieldType.TYPE_RANGE.equals(fd.getType())) {
                         String key = createPattern(k);
@@ -313,6 +337,19 @@ public abstract class BaseDao {
         }
 //        long end = System.currentTimeMillis();
 //        logger2.info("z_update操作耗时："+(end-start));
+    }
+
+    //传递数据，自动判断是更新还是插入
+    public Long updateOrAdd(Map<String,Object> map){
+        String id = getIdValue(map);
+        Map<String,?> old = select(id);
+        if(old==null){
+            add(map);
+            return 0L;
+        }else{
+            update(map);
+            return 1L;
+        }
     }
 
     /**
@@ -353,6 +390,7 @@ public abstract class BaseDao {
 //        logger2.info("z_selectEq操作耗时：" + (end - start));
         return jsonMapper.convertToList(jsonList);
     }
+
 
     /**
      * 查找用于分页的Equal字段对应值
@@ -472,12 +510,41 @@ public abstract class BaseDao {
             logger.debug("select from " + createPattern() + " by " + prefix + " with equal search，due to" + field + "not a match field，with no record");
             return Collections.emptyList();
         }
+        String ascPrefix = Ascii.stringToAscStr(prefix);
         RedisZSetCommands.Range range = new RedisZSetCommands.Range();
-        range.gte(prefix);
+        range.gte(ascPrefix);
+        range.lte(ascPrefix + "}");
         RedisZSetCommands.Limit limit = new RedisZSetCommands.Limit();
         limit.offset(offset);
         limit.count(count);
         Set<String> strList = redisTemplate.boundZSetOps(key).rangeByLex(range, limit);
+        if (strList.isEmpty()) {
+            logger.debug("select from " + key + " by " + prefix + " with match search,select records numbser is " + 0);
+            return Collections.emptyList();
+        }
+        String[] ids = new String[strList.size()];
+        int i = 0;
+        for (String str : strList) {
+            ids[i++] = StringUtils.substringAfterLast(str, ":");
+        }
+        BoundHashOperations<String, String, String> boundHashOperations = redisTemplate.boundHashOps(createPattern());
+        List<String> jsons = boundHashOperations.multiGet(Arrays.asList(ids));
+        logger.debug("select from " + key + " by " + prefix + " with match search,select records numbser is " + jsons.size());
+        return jsonMapper.convertToList(jsons);
+    }
+
+    public List<Map<String, ?>> selectByMatchField(String field, String prefix) {
+        FieldDescriptor fd = fieldDescriptorMap.get(field);
+        String key = createPattern(field);
+        if (fd == null || !FieldType.TYPE_MATCH.equals(fd.getType())) {
+            logger.debug("select from " + createPattern() + " by " + prefix + " with equal search，due to" + field + "not a match field，with no record");
+            return Collections.emptyList();
+        }
+        String ascPrefix = Ascii.stringToAscStr(prefix);
+        RedisZSetCommands.Range range = new RedisZSetCommands.Range();
+        range.gte(ascPrefix);
+        range.lte(ascPrefix + "}");
+        Set<String> strList = redisTemplate.boundZSetOps(key).rangeByLex(range);
         if (strList.isEmpty()) {
             logger.debug("select from " + key + " by " + prefix + " with match search,select records numbser is " + 0);
             return Collections.emptyList();
@@ -622,6 +689,7 @@ public abstract class BaseDao {
         return result;
     }
 
+
     /**
      * @param field
      * @param prefix 匹配模式
@@ -637,9 +705,10 @@ public abstract class BaseDao {
             logger.debug("select from " + createPattern() + " by " + prefix + " with equal search，due to" + field + "not a match field，with no record");
             return Collections.emptyList();
         }
+        String ascPrefix = Ascii.stringToAscStr(prefix);
         RedisZSetCommands.Range range = new RedisZSetCommands.Range();
-        range.gte(prefix);
-        range.lte(prefix + ":" + "}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}");
+        range.gte(ascPrefix);
+        range.lte(ascPrefix + ":" + "}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}");
         Set<String> strList = redisTemplate.boundZSetOps(key).rangeByLex(range);
         if (strList.isEmpty()) {
             logger.debug("select from " + key + " by " + prefix + " with match search,select records numbser is " + 0);
@@ -738,7 +807,8 @@ public abstract class BaseDao {
         return jsonMapper.convertToList(jsonList);
     }
 
-    protected String getIdValue(Map<String, ?> map) {
+
+    public String getIdValue(Map<String, ?> map) {
         return String.valueOf(map.get(idDescriptor.getName()));
     }
 
@@ -773,6 +843,7 @@ public abstract class BaseDao {
         }
         String key = createPattern(fieldName, fieldValue);
         long setSize = redisTemplate.opsForZSet().size(key);
+
         long pages = setSize / pageSize;
         long remain = setSize % pageSize;
         if (remain > 0) {
@@ -833,6 +904,9 @@ public abstract class BaseDao {
         List<String> tempKeys = new ArrayList<>();
         Set<Map.Entry<String, List<Object>>> entrySet = conditions.entrySet();
         for (Map.Entry<String, List<Object>> entry : entrySet) {
+            if (entry.getValue() == null || entry.getValue().isEmpty()) {
+                continue;
+            }
             String tempKey = createPattern(UUID.randomUUID().toString());
             String entryKey = entry.getKey();
             List<String> keys = new ArrayList<>();
@@ -843,6 +917,9 @@ public abstract class BaseDao {
             tempKeys.add(tempKey);
         }
         String resultKey = createPattern(UUID.randomUUID().toString());
+        if (tempKeys.isEmpty()) {
+            return "";
+        }
         redisTemplate.opsForZSet().intersectAndStore(tempKeys.get(0), tempKeys, resultKey);
         redisTemplate.delete(tempKeys);
         return resultKey;
@@ -855,16 +932,23 @@ public abstract class BaseDao {
         List<String> tempKeys = new ArrayList<>();
         Set<Map.Entry<String, ScoreRange>> entrySet = ranges.entrySet();
         for (Map.Entry<String, ScoreRange> entry : entrySet) {
-            String tempKey = createPattern(UUID.randomUUID().toString());
             ScoreRange range = entry.getValue();
-            Set<ZSetOperations.TypedTuple<String>> ids = redisTemplate.boundZSetOps(createPattern(entry.getKey())).rangeByScoreWithScores(range.getMin(), range.getMax());
+            if (StringUtils.isEmpty(range.getMax()) && StringUtils.isEmpty(range.getMin())) {
+                continue;
+            }
+            String tempKey = createPattern(UUID.randomUUID().toString());
+            Set<ZSetOperations.TypedTuple<String>> ids = redisTemplate.boundZSetOps(createPattern(entry.getKey())).rangeByScoreWithScores(stringToDouble(range.getMin(), false), stringToDouble(range.getMax(), true));
             if (ids == null || ids.isEmpty()) {
-                return null;
+                redisTemplate.delete(tempKeys);
+                return EMPTY;
             }
             redisTemplate.boundZSetOps(tempKey).add(ids);
             tempKeys.add(tempKey);
         }
         String resultKey = createPattern(UUID.randomUUID().toString());
+        if (tempKeys.isEmpty()) {
+            return "";
+        }
         redisTemplate.opsForZSet().intersectAndStore(tempKeys.get(0), tempKeys, resultKey);
         redisTemplate.delete(tempKeys);
         return resultKey;
@@ -877,19 +961,26 @@ public abstract class BaseDao {
         List<String> tempKeys = new ArrayList<>();
         Set<Map.Entry<String, Object>> entrySet = matches.entrySet();
         for (Map.Entry<String, Object> entry : entrySet) {
+            if (isEmpty(entry.getValue())) {
+                continue;
+            }
             String tempKey = createPattern(UUID.randomUUID().toString());
             RedisZSetCommands.Range range = new RedisZSetCommands.Range();
-            range.gte(objToString(entry.getValue()));
-            range.lte(objToString(entry.getValue()) + "}");
+            range.gte(Ascii.stringToAscStr(String.valueOf(entry.getValue())));
+            range.lte(Ascii.stringToAscStr(String.valueOf(entry.getValue())) + "}");
             Set<String> infos = redisTemplate.boundZSetOps(createPattern(entry.getKey())).rangeByLex(range);
             Set<ZSetOperations.TypedTuple<String>> tupleSet = convertInfoToIds(infos);
             if (tupleSet == null || tupleSet.isEmpty()) {
-                return null;
+                redisTemplate.delete(tempKeys);
+                return EMPTY;
             }
             redisTemplate.boundZSetOps(tempKey).add(tupleSet);
             tempKeys.add(tempKey);
         }
         String resultKey = createPattern(UUID.randomUUID().toString());
+        if (tempKeys.isEmpty()) {
+            return "";
+        }
         redisTemplate.opsForZSet().intersectAndStore(tempKeys.get(0), tempKeys, resultKey);
         redisTemplate.delete(tempKeys);
         return resultKey;
@@ -913,6 +1004,10 @@ public abstract class BaseDao {
         return new PagedValues(total, values);
     }
 
+    public void deleteKeys(List<String> keys) {
+        redisTemplate.delete(keys);
+    }
+
     public List<Map<String, ?>> selectValuesByKeys(List<String> keys) {
         if (keys == null || keys.isEmpty()) {
             return null;
@@ -927,6 +1022,51 @@ public abstract class BaseDao {
         return jsonMapper.convertToList(jsons);
     }
 
+    public List<Map<String,?>> selectNotEqFields(Map<String,Object> equals){
+        if(MapUtils.isEmpty(equals)){
+            return Collections.emptyList();
+        }
+        Set<String> notInSet = new HashSet<>();
+        for(Map.Entry<String,Object> entry:equals.entrySet()){
+            String setkey = createPattern(entry.getKey(), objToString(entry.getValue()));
+            Set<String> tempIds = redisTemplate.boundZSetOps(setkey).rangeByScore(-Double.MAX_VALUE, Double.MAX_VALUE);
+            notInSet.addAll(tempIds);
+        }
+        BoundHashOperations<String,String,String> hashOperations = redisTemplate.boundHashOps(createPattern());
+        Set<String> allSet = hashOperations.keys();
+        allSet.removeAll(notInSet);
+        List<String> jsons = hashOperations.multiGet(allSet);
+        return jsonMapper.convertToList(jsons);
+    }
+
+    public String selectIdsSetByNotEq(Map<String,List<Object>> equals){
+        if(MapUtils.isEmpty(equals)){
+            return null;
+        }
+        Set<String> notInSet = new HashSet<>();
+        for(Map.Entry<String,List<Object>> entry:equals.entrySet()){
+            String key = entry.getKey();
+            List<Object> values = entry.getValue();
+            if(values==null||values.isEmpty()){
+                continue;
+            }
+            for(Object value:values){
+                Set<String> tempSet = redisTemplate.boundZSetOps(createPattern(key,objToString(value))).rangeByScore(-Double.MAX_VALUE, Double.MAX_VALUE);
+                notInSet.addAll(tempSet);
+            }
+        }
+        BoundHashOperations<String,String,String> hashOperations = redisTemplate.boundHashOps(createPattern());
+        Set<String> allkeySet = hashOperations.keys();
+        allkeySet.removeAll(notInSet);
+        if(allkeySet.isEmpty()){
+            return EMPTY;
+        }
+        Set<ZSetOperations.TypedTuple<String>> tupleSet = convertKeyToTuple(allkeySet);
+        String resultKey = createPattern(UUID.randomUUID().toString());
+        redisTemplate.boundZSetOps(resultKey).add(tupleSet);
+        return resultKey;
+    }
+
     protected Set<ZSetOperations.TypedTuple<String>> convertInfoToIds(Set<String> infos) {
         Set<ZSetOperations.TypedTuple<String>> ids = new HashSet<>();
         for (String info : infos) {
@@ -935,6 +1075,15 @@ public abstract class BaseDao {
             ids.add(tuple);
         }
         return ids;
+    }
+
+    protected Set<ZSetOperations.TypedTuple<String>> convertKeyToTuple(Set<String> keys){
+        Set<ZSetOperations.TypedTuple<String>> tupleSet = new HashSet<>();
+        for(String key:keys){
+            ZSetOperations.TypedTuple<String> tuple = new DefaultTypedTuple<>(key,0.0);
+            tupleSet.add(tuple);
+        }
+        return tupleSet;
     }
 
     protected String createPattern(String... args) {
@@ -971,11 +1120,64 @@ public abstract class BaseDao {
         return Double.parseDouble(String.valueOf(obj != null ? obj : -1));
     }
 
+    protected long stringToLong(String str){
+        return Long.parseLong(str);
+    }
+
+    protected double stringToDouble(String obj, boolean isMax) {
+        if (StringUtils.isEmpty(obj)) {
+            if (isMax) {
+                return Double.MAX_VALUE;
+            } else {
+                return -Double.MAX_VALUE;
+            }
+        } else {
+            return Double.parseDouble(String.valueOf(obj));
+        }
+    }
+
+    protected boolean isEmpty(Object obj) {
+        if (obj == null) {
+            return true;
+        } else {
+            String str = String.valueOf(obj);
+            if (StringUtils.isEmpty(str)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     protected String objToString(Object obj) {
         return String.valueOf(obj != null ? obj : "");
     }
 
     protected int objToInt(Object obj) {
         return Integer.parseInt(String.valueOf(obj != null ? obj : -1));
+    }
+
+
+    public synchronized void locked(String id){
+        String lockedKey = createPattern(LOCKED,id);
+        long lockedTimeOut = 60*1000L;
+        while(true){
+            long time = System.currentTimeMillis()+lockedTimeOut;
+            //试图获取操作对应记录的锁
+            if(redisTemplate.opsForValue().setIfAbsent(lockedKey,objToString(time))){
+                //成功获取到锁
+                break;
+            }
+            //如果未获取到锁，判断当前的锁是否超时
+            String lockedTime = redisTemplate.opsForValue().get(lockedKey);
+            //如果获取的锁超时,解锁超时的锁，并试图去获取锁
+            if(StringUtils.isNotEmpty(lockedTime)&&stringToLong(lockedTime)<System.currentTimeMillis()){
+                String nowTime = redisTemplate.opsForValue().getAndSet(lockedKey,objToString(time));
+                //判断是否有其他线程抢先获取锁，若被抢先，本次获取锁失败
+                if(StringUtils.isNotEmpty(nowTime)&&nowTime.equals(lockedTime)){
+                    //两次结果一致，说明成功获取到锁
+                    break;
+                }
+            }
+        }
     }
 }

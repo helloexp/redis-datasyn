@@ -1,20 +1,19 @@
 package com.hand.util.json;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
+import java.util.*;
 
 public class JsonMapper {
 
-	@Resource(name = "objectMapper")
-	protected ObjectMapper objectMapper = new ObjectMapper();
+	protected ObjectMapper objectMapper;
+
+	public JsonMapper() {
+		this.objectMapper = new ObjectMapper();
+		this.objectMapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
+	}
 
 	public void asRuntime(Throwable throwable) {
 		if (throwable instanceof RuntimeException) {
@@ -26,8 +25,8 @@ public class JsonMapper {
 	public List<Map<String, ?>> convertToList(Collection<String> jsons) {
 		List<Map<String, ?>> list = new ArrayList<>();
 		try {
-			for (String json : jsons){
-				if(json!=null){
+			for (String json : jsons) {
+				if (json != null) {
 					list.add(objectMapper.readValue(json, HashMap.class));
 				}
 			}
@@ -43,7 +42,7 @@ public class JsonMapper {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-	} 
+	}
 
 	public Map<String, ?> convertToMap(String json) {
 		try {

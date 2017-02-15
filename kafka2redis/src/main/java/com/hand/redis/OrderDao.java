@@ -1,8 +1,5 @@
 package com.hand.redis;
 
-import com.hand.redis.OrderStatus;
-import com.hand.redis.VisibleStatus;
-import com.hand.util.redis.Field.FieldDescriptor;
 import com.hand.util.redis.Field.FieldType;
 import com.hand.util.redis.dao.BaseDao;
 import org.apache.commons.collections.SetUtils;

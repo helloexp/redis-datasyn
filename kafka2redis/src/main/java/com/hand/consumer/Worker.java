@@ -6,7 +6,9 @@ package com.hand.consumer;
 
 import com.hand.producer.DoKfk;
 import com.hand.redis.*;
+import com.hand.util.TypeUtils;
 import com.hand.util.redis.dao.BaseDao;
+import com.hand.util.redis.dao.UpdateService;
 import net.sf.json.JSONObject;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
@@ -178,6 +180,7 @@ public class Worker implements Runnable {
 //            zoneDeliveryModeValueDao};
 
     DoKfk doKfk = (DoKfk) SpringUtils.getBean("doKfk");
+    UpdateService updateService = (UpdateService) SpringUtils.getBean("updateService");
 //    kafkaProducer kafkaproduce = new kafkaProducer();
 
     @Override
@@ -207,7 +210,7 @@ public class Worker implements Runnable {
                         if (commap == null) {
                             try {
                                 commonDao.add(map);
-                                System.out.println("操作成功");
+                                System.out.println("add操作成功");
                             } catch (Exception e) {
                                 doKfk.onMessage("数据库操作失败，转发kafka" + String.valueOf(map));
                                 System.out.println("数据库操作失败，转发kafka");
@@ -221,6 +224,7 @@ public class Worker implements Runnable {
                         } else {
                             try {
                                 commonDao.add(map);
+                                System.out.println("add操作成功");
                             } catch (Exception e) {
                                 doKfk.onMessage("数据库操作失败，转发kafka" + String.valueOf(map));
                                 System.out.println("数据库操作失败，转发kafka");
@@ -245,6 +249,7 @@ public class Worker implements Runnable {
                 CommonDao commonDao1 = new CommonDao(names[1]);
                 try {
                     try {
+                        System.out.println("deladd操作成功");
                         commonDao1.addRecycle(map2);
                     } catch (Exception e) {
                         doKfk.onMessage("数据库操作失败，转发kafka" + String.valueOf(map2));
@@ -257,6 +262,7 @@ public class Worker implements Runnable {
                         if (Integer.parseInt(String.valueOf(commap2.get("version"))) <= Integer.parseInt(map2.get("version"))) {
                             try {
                                 commonDao1.delete(names[2]);
+                                System.out.println("del操作成功");
                             } catch (Exception e) {
                                 doKfk.onMessage("数据库操作失败，转发kafka" + String.valueOf(map2));
                                 System.out.println("数据库操作失败，转发kafka");
@@ -269,7 +275,7 @@ public class Worker implements Runnable {
                     e.printStackTrace();
                 }
             } else if (names[0].equals("up")) {
-                HashMap<String, String> map1 = new HashMap<String, String>();
+                Map<String, Object> map1 = new HashMap<String, Object>();
                 // 灏唈son瀛楃涓茶浆鎹㈡垚jsonObject
                 JSONObject jsonObject = JSONObject.fromObject(names[2]);
                 Iterator it = jsonObject.keys();
@@ -280,22 +286,24 @@ public class Worker implements Runnable {
                     map1.put(key1, value1);
                 }
                 CommonDao commonDao2 = new CommonDao(names[1]);
-
                 try {
-                    Map<String, Objects> remap1 = (Map<String, Objects>) commonDao2.selectRecycle(map1.get(commonDao2.index));
-                    Map<String, Objects> commap1 = (Map<String, Objects>) commonDao2.select(map1.get(commonDao2.index));
+                    Map<String, Objects> remap1 = (Map<String, Objects>) commonDao2.selectRecycle(TypeUtils.objToString(map1.get(commonDao2.index)));
+                    Map<String, Objects> commap1 = (Map<String, Objects>) commonDao2.select(TypeUtils.objToString(map1.get(commonDao2.index)));
                     if (remap1 == null) {
                         if (commap1 == null) {
                             try {
                                 commonDao2.add(map1);
+                                System.out.println("up操作成功");
                             } catch (Exception e) {
                                 doKfk.onMessage("数据库操作失败，转发kafka" + String.valueOf(map1));
                                 System.out.println("操作失败，转发kafka");
                             }
                         } else {
-                            if (Integer.parseInt(String.valueOf(commap1.get("version"))) < Integer.parseInt(map1.get("version"))) {
+                            if (Integer.parseInt(String.valueOf(commap1.get("version"))) < TypeUtils.objToInt(map1.get("version"))) {
                                 try {
+                                    updateService.update2(map1,commonDao2);
                                     commonDao2.update(map1);
+                                    System.out.println("up操作成功");
                                 } catch (Exception e) {
                                     doKfk.onMessage("数据库操作失败，转发kafka" + String.valueOf(map1));
                                     System.out.println("操作失败，转发kafka");
@@ -305,18 +313,18 @@ public class Worker implements Runnable {
                             }
                         }
                     } else {
-                        if (Integer.parseInt(String.valueOf(remap1.get("version"))) > Integer.parseInt(map1.get("version"))) {
+                        if (Integer.parseInt(String.valueOf(remap1.get("version"))) > TypeUtils.objToInt(map1.get("version"))) {
                             System.out.println("过时数据，不进行操作。");
                         } else {
                             try {
                                 commonDao2.add(map1);
+                                System.out.println("up操作成功");
                             } catch (Exception e) {
                                 doKfk.onMessage("数据库操作失败，转发kafka" + String.valueOf(map1));
                                 System.out.println("数据库操作失败，转发kafka");
                             }
                         }
                     }
-
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

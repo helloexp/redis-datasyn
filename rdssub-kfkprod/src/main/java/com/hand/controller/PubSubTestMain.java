@@ -37,7 +37,7 @@ public class PubSubTestMain {
     })
     public void ok() throws Exception {
 
-        while(true){
+        while(1>0){
             if (redisTemplate.opsForList().size("test")>0){
                 for (int i=0;i<redisTemplate.opsForList().size("test");i++){
                     String message = redisTemplate.opsForList().leftPop("test");
@@ -45,10 +45,7 @@ public class PubSubTestMain {
                     doKfk.onMessage("test",message);
                 }
             }
-
         }
-
-
     }
 
     public String okFallback(Throwable e) {

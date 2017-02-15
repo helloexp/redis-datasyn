@@ -62,7 +62,7 @@ public class KafkaProducer {
                     map.put("dietime", diff);
                     DeadLetterDao deadLetterDao = (DeadLetterDao) springUtils.getBean("deadLetterDao");
                     deadLetterDao.add(map);
-                }
+                  }
             }
         });
         producer.close();
